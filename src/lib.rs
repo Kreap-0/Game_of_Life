@@ -1,6 +1,7 @@
 mod utils;
 
 use wasm_bindgen::prelude::*;
+use js_sys::Math;
 
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
@@ -69,13 +70,10 @@ impl Universe {
         self.cells = next;
     }
     
-    pub fn new() -> Universe {
-        let width = 64;
-        let height = 64;
-
+    pub fn new(width: u32, height: u32) -> Universe {
         let cells = (0..width * height)
-            .map(|i| {
-                if i % 2 == 0 || i % 7 == 0 {
+            .map(|_| {
+                if Math::random() >= 0.5 {
                     Cell::Alive
                 } else {
                     Cell::Dead
@@ -90,8 +88,24 @@ impl Universe {
         }
     }
 
-    pub fn render(&self) -> String {
-        self.to_string()
+    pub fn flip(&mut self, row: u32, column: u32) {
+        let index = self.get_index(row, column);
+        self.cells[index] = match self.cells[index] {
+            Cell::Alive => Cell::Dead,
+            Cell::Dead => Cell::Alive
+        }
+    }
+
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+
+    pub fn cells(&self) -> *const Cell {
+        self.cells.as_ptr()
     }
 }
 
